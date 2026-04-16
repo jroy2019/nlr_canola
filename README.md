@@ -1,5 +1,5 @@
 # Introduction
-## NLR Annotation in *Brassica napus*
+## NLR Analysis in *Brassica napus*
 
 Nucleotide-binding leucine-rich repeat (NLR) proteins are a key class of disease resistance 
 genes in plants, playing a central role in detecting pathogens and triggering immune responses. 
@@ -7,12 +7,14 @@ In canola (*Brassica napus*), characterising the NLR repertoire is important for
 and improving resistance to devastating fungal and bacterial diseases such as blackleg and 
 clubroot.
 
-This project identifies and annotates NLR genes in the *B. napus* genome, 
-classifies them by domain architecture, and explores their evolutionary relationships through 
+This project aims to:
+1. Identify and annotate NLR genes in the *B. napus* genome, 
+2. Classify NLRs into functional genes and non-functional pseudogenes aswell as functional classes (TIR-NLRs, CC-NLRs, and RPW8-NLRs)
+3. Explores their evolutionary relationships through 
 phylogenetic tree analysis.
 
 # Tools I used
-## For this project, I utlised a variety of tools:
+For this project, I utlised a variety of tools:
 - **NLR-Annotator** by [Steuernagel et al., 2020](https://doi.org/10.1104/pp.19.01273) for NLR gene identification and annotation.
 - **R** for data analysis and visualisation
 - 
