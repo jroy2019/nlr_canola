@@ -113,9 +113,12 @@ df_nlr[df_nlr$scaffold_id == "ENA|CCCW010043234|CCCW010043234.1",
 | **-** | 44 | 69 | 213 |
 | **+** | 41 | 65 | 197 |
 
+*Chi-squared tests indicate no significant strand bias across complete vs partial NLRs (p = 0.996) or across NLR classes (p = 0.372).*
+
 | Cluster size | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
 |---|---|---|---|---|---|---|---|---|
 | Scaffolds | 365 | 63 | 25 | 5 | 7 | 0 | 0 | 1 |
+
 *Total number of unique scaffolds with NLRs: 466, most NLRs are by themselves*
 
 | gene_id | domain_class | start | end | strand | nlr_class | gene_type |
@@ -128,6 +131,7 @@ df_nlr[df_nlr$scaffold_id == "ENA|CCCW010043234|CCCW010043234.1",
 | CCCW010043234.1_nlr6 | TIR-NBARC | 138102 | 139200 | + | TNLR | partial |
 | CCCW010043234.1_nlr7 | TIR-NBARC-LRR | 103142 | 111396 | - | TNLR | complete |
 | CCCW010043234.1_nlr8 | TIR-NBARC-LRR | 94910 | 99191 | - | TNLR | complete |
+
 *The scaffold with the most NLRs (8) contains only TIR-NLRs, all of which are partial (on the + strand), except for 2 complete NLRs (on the - strand).*
 
 ## 4. Align NLR sequences
