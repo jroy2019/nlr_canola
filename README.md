@@ -13,10 +13,12 @@ This project aims to:
 3. Explores their evolutionary relationships through 
 phylogenetic tree analysis.
 
-# Tools I used
-For this project, I utlised a variety of tools:
-- **NLR-Annotator** by [Steuernagel et al., 2020](https://doi.org/10.1104/pp.19.01273) for NLR gene identification and annotation.
-- **R** for data analysis and visualisation
+# Tools we used
+For this project, we utlised a variety of tools:
+- **NLR-Annotator v2.1b** by [Steuernagel et al., 2020](https://doi.org/10.1104/pp.19.01273) for NLR gene identification and annotation.
+- **R 4.1.2** for data analysis and visualisation
+- **MAFFT v7.490** for multiple sequence alignment of NB-ARC domains
+- **IQ-TREE  v2.0.7** for phylogenetic tree construction
 - 
 # The Analysis
 ## 1. Download and unzip *Brassica napus* Whole Genome Sequence (WGS) from European Nucleotide Archive (ENA)
@@ -134,13 +136,12 @@ df_nlr[df_nlr$scaffold_id == "ENA|CCCW010043234|CCCW010043234.1",
 
 *The scaffold with the most NLRs (8) contains only TIR-NLRs, all of which are partial (on the + strand), except for 2 complete NLRs (on the - strand).*
 
-## 4. Align NLR sequences
+## 4. Allign NB-ARC domain sequences using MAFFT 
+MAFFT is a widely used tool for multiple sequence alignment. NB-ARC motif DNA sequences were used as input, producing an aligned protein sequence output. The --localpair option is used for sequences that are expected to have local similarities, while --maxiterate allows for up to 1000 iterations to refine the alignment, improving accuracy. The --reorder option groups similar sequences together in the output alignment.
+```bash
+mafft --localpair --maxiterate 1000 --reorder output.nbarkMotifAlignment.fasta > mafft_aligned_nbarc.fasta
+```
 
-
-
-
-
-
-
+## 5. Construct a phylogenetic tree using IQ-TREE 
 
 # Conclusion
