@@ -137,7 +137,7 @@ df_nlr[df_nlr$scaffold_id == "ENA|CCCW010043234|CCCW010043234.1",
 *The scaffold with the most NLRs (8) contains only TIR-NLRs, all of which are partial (on the + strand), except for 2 complete NLRs (on the - strand).*
 
 ## 4. Allign NB-ARC domain sequences using MAFFT 
-MAFFT is a widely used tool for multiple sequence alignment. NB-ARC motif DNA sequences were used as input, producing an aligned protein sequence output. The --localpair option is used for sequences that are expected to have local similarities, while --maxiterate allows for up to 1000 iterations to refine the alignment, improving accuracy. The --reorder option groups similar sequences together in the output alignment.
+MAFFT is a widely used tool for multiple sequence alignment. NB-ARC domain protein sequences were used as input, producing an aligned protein sequence output. The --localpair option is used for sequences that are expected to have local similarities, while --maxiterate allows for up to 1000 iterations to refine the alignment, improving accuracy. The --reorder option groups similar sequences together in the output alignment.
 ```bash
 mafft --localpair --maxiterate 1000 --reorder output.nbarkMotifAlignment.fasta > mafft_aligned_nbarc.fasta
 ```
