@@ -143,5 +143,9 @@ mafft --localpair --maxiterate 1000 --reorder output.nbarkMotifAlignment.fasta >
 ```
 
 ## 5. Construct a phylogenetic tree using IQ-TREE 
+IQ-TREE constructs a maximum likelihood phylogenetic tree from the aligned NB-ARC domain sequences. The -m TEST option enables automatic selection of the best-fit substitution model, while -B 1000 and -alrt 1000 perform ultrafast bootstrap and SH-aLRT tests with 1000 replicates each to assess branch support. The -T AUTO option allows IQ-TREE to automatically determine the optimal number of CPU threads. 
+```bash
+iqtree2 -s mafft_aligned_nbarc.fasta -m TEST -B 1000 -alrt 1000 -T AUTO
+```
 
 # Conclusion
