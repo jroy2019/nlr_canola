@@ -19,7 +19,7 @@ For this project, we utlised a variety of tools:
 - **R 4.1.2** for data analysis and visualisation
 - **MAFFT v7.490** for multiple sequence alignment of NB-ARC domains
 - **IQ-TREE  v2.0.7** for phylogenetic tree construction
-- 
+- ** Python v3.13.9** for data visualisation
 # The Analysis
 ## 1. Download and unzip *Brassica napus* Whole Genome Sequence (WGS) from European Nucleotide Archive (ENA)
 
@@ -187,5 +187,63 @@ df_nlr[df_nlr$scaffold_id == "ENA|CCCW010043234|CCCW010043234.1",
 | CCCW010043234.1_nlr8 | TIR-NBARC-LRR | 94910 | 99191 | - | TNLR | complete |
 
 *10043234.1 is the scaffold with the most NLRs (8) contains only TIR-NLRs, 6 of which are partial (on the + strand), and 2 which are complete NLRs (on the - strand).*
+
+## 7. Compare motifs in CC-NLRs vs TIR-NLRs
+```R
+# Import libraries
+library(tidyr)
+
+# Explode motifs colum
+df_nlr_long <- df_nlr %>%
+  separate_rows(motifs, sep = ",")
+
+# remove duplicates
+df_nlr_long <- df_nlr_long %>% distinct(gene_id, motifs, nlr_class, .keep_all = TRUE)
+
+#count motifs by class
+motif_counts_by_class <- df_nlr_long %>%
+  group_by(nlr_class,motifs) %>%
+  summarise(count = n(), .groups = 'drop') 
+```
+```python
+import pandas as pd 
+import matplotlib.pyplot as plt 
+import numpy as np
+
+# Define total counts of cCC and TIR NLRs
+cc_total = 85
+tir_total = 410
+
+# Pivot 
+df_pivot = df_plot.pivot_table(index='motifs', columns='nlr_class', values='count', fill_value=0)
+
+# Calculate percentages
+df_pivot['CC-NLR%'] = df_pivot['CNLR'] / cc_total * 100
+df_pivot['TIR-NLR%'] = df_pivot['TNLR'] / tir_total * 100
+
+# Sort by motif number
+df_pivot['motif_num'] = df_pivot.index.str.extract(r'motif_(\d+)', expand=False).astype(int)
+df_pivot = df_pivot.sort_values('motif_num')
+
+# Plot barchart
+fig, ax = plt.subplots(figsize=(10, 6))
+x = np.arange(len(df_pivot))
+width = 0.35
+
+ax.bar(x - width/2, df_pivot['CC-NLR%'], width, label='CC-NLR', color='#0072B2', alpha=0.8)
+ax.bar(x + width/2, df_pivot['TIR-NLR%'], width, label='TIR-NLR', color='#E69F00', alpha=0.8)
+
+ax.set_xlabel('Motif', fontsize=12)
+ax.set_ylabel('Percentage (%)', fontsize=12)
+ax.set_xticks(x)
+ax.set_xticklabels(df_pivot.index, rotation=45, ha='right')  
+ax.legend()
+ax.grid(False)  
+
+plt.tight_layout()
+plt.show()
+```
+## Results
+![Motif distribution in CC-NLRs vs TIR-NLRs](results/motifs.png)
 
 # Conclusion
