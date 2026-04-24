@@ -68,15 +68,6 @@ table(df_nlr$strand, df_nlr$nlr_class)
 chisq.test(table(df_nlr$strand, df_nlr$gene_type)) #test for strand bias across complete vs partial NLRs
 chisq.test(table(df_nlr$strand, df_nlr$nlr_class)) #test for strand bias across NLR classes
 
-# Determine total NLRs per scaffold
-nlr_per_scaffold <- rowSums(table(df_nlr$scaffold_id, df_nlr$nlr_class))
-
-# Number of scaffolds with n NLRs
-table(nlr_per_scaffold)
-
-# Finding the scaffold with 8 NLRs
-df_nlr[df_nlr$scaffold_id == "ENA|CCCW010043234|CCCW010043234.1", 
-       c("gene_id", "domain_class", "start", "end", "strand", "nlr_class", "gene_type")]
 ```
 ### Results
 629 NLR entries were identified in the *Brassica napus* WGS. The distribution of NLR entries is as follows:
@@ -121,9 +112,70 @@ df_nlr[df_nlr$scaffold_id == "ENA|CCCW010043234|CCCW010043234.1",
 |---|---|---|---|---|---|---|---|---|
 | Scaffolds | 365 | 63 | 25 | 5 | 7 | 0 | 0 | 1 |
 
-*Total number of unique scaffolds with NLRs: 466, most NLRs are by themselves*
+## 4. Allign NB-ARC domain sequences using MAFFT 
+MAFFT is a widely used tool for multiple sequence alignment. NB-ARC domain protein sequences were used as input, producing an aligned protein sequence output. The --localpair option is used for sequences that are expected to have local similarities, while --maxiterate allows for up to 1000 iterations to refine the alignment, improving accuracy. The --reorder option groups similar sequences together in the output alignment.
+```bash
+mafft --localpair --maxiterate 1000 --reorder output.nbarkMotifAlignment.fasta > mafft_aligned_nbarc.fasta
+```
 
-| gene_id | domain_class | start | end | strand | nlr_class | gene_type |
+## 5. Construct phylogenetic tree using IQ-TREE and visualise using ggtree 
+IQ-TREE constructs a maximum likelihood phylogenetic tree from the aligned NB-ARC domain sequences. The -m TEST option enables automatic selection of the best-fit substitution model, while -B 1000 and -alrt 1000 perform ultrafast bootstrap and SH-aLRT tests with 1000 replicates each to assess branch support. The -T AUTO option allows IQ-TREE to automatically determine the optimal number of CPU threads. 
+
+```bash
+iqtree2 -s mafft_aligned_nbarc.fasta -m TEST -B 1000 -alrt 1000 -T AUTO
+```
+```R
+#import libraries
+library(ape)
+library(ggtree)
+library(ggplot2)
+
+df_annot$nlr_label <- recode(df_annot$nlr_class,
+                             "TNLR" = "TIR-NLR",
+                             "CNLR" = "CC-NLR",
+                             "NLR"  = "Uncharacterised NLR",
+                             "NA"   = "Uncharacterised NLR"
+)
+
+ggtree(tree, layout = "circular") %<+% df_annot +
+  geom_tippoint(aes(color = nlr_label), size = 1.5) +
+  scale_color_manual(values = c(
+    "TIR-NLR"             = "#E69F00",
+    "CC-NLR"              = "#0072B2",
+    "Uncharacterised NLR" = "#999999"
+  )) +
+  labs(color = "NLR Class") +
+  theme(legend.position = "right")
+
+# Find bootstrap support values for the first branch in the tree
+first_branch_label <- tree$node.label[2]
+print(first_branch_label)
+
+```
+### Results.
+![NB-ARC derived phylogenetic tree](results/phylo_circular.png)
+*A pylogentic tree was constructed using NB-ARC domain protein sequences of 375 complete NLRs. The bootstrap support values for the first branch in the tree is 94% (ultrafast bootstrap) and 93% (SH-aLRT), indicating very strong support for this branch.*
+
+## 6. Identify clusters of NLRs across the genome
+```R
+# Determine total NLRs per scaffold
+nlr_per_scaffold <- rowSums(table(df_nlr$scaffold_id, df_nlr$nlr_class))
+
+# Number of scaffolds with n NLRs
+table(nlr_per_scaffold)
+
+# Finding the scaffold with 8 NLRs
+df_nlr[df_nlr$scaffold_id == "ENA|CCCW010043234|CCCW010043234.1", 
+       c("gene_id", "domain_class", "start", "end", "strand", "nlr_class", "gene_type")]
+```
+
+## Results
+| Cluster size | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|
+| Scaffolds | 365 | 63 | 25 | 5 | 7 | 0 | 0 | 1 |
+*Total number of unique scaffolds with NLRs: 466 and most NLRs are by themselves*
+
+| scaffold_id | domain_class | start | end | strand | nlr_class | gene_type |
 |---|---|---|---|---|---|---|
 | CCCW010043234.1_nlr1 | TIR-NBARC | 102195 | 103503 | + | TNLR | partial |
 | CCCW010043234.1_nlr2 | TIR-NBARC | 113810 | 115753 | + | TNLR | partial |
@@ -134,18 +186,6 @@ df_nlr[df_nlr$scaffold_id == "ENA|CCCW010043234|CCCW010043234.1",
 | CCCW010043234.1_nlr7 | TIR-NBARC-LRR | 103142 | 111396 | - | TNLR | complete |
 | CCCW010043234.1_nlr8 | TIR-NBARC-LRR | 94910 | 99191 | - | TNLR | complete |
 
-*The scaffold with the most NLRs (8) contains only TIR-NLRs, all of which are partial (on the + strand), except for 2 complete NLRs (on the - strand).*
-
-## 4. Allign NB-ARC domain sequences using MAFFT 
-MAFFT is a widely used tool for multiple sequence alignment. NB-ARC domain protein sequences were used as input, producing an aligned protein sequence output. The --localpair option is used for sequences that are expected to have local similarities, while --maxiterate allows for up to 1000 iterations to refine the alignment, improving accuracy. The --reorder option groups similar sequences together in the output alignment.
-```bash
-mafft --localpair --maxiterate 1000 --reorder output.nbarkMotifAlignment.fasta > mafft_aligned_nbarc.fasta
-```
-
-## 5. Construct a phylogenetic tree using IQ-TREE 
-IQ-TREE constructs a maximum likelihood phylogenetic tree from the aligned NB-ARC domain sequences. The -m TEST option enables automatic selection of the best-fit substitution model, while -B 1000 and -alrt 1000 perform ultrafast bootstrap and SH-aLRT tests with 1000 replicates each to assess branch support. The -T AUTO option allows IQ-TREE to automatically determine the optimal number of CPU threads. 
-```bash
-iqtree2 -s mafft_aligned_nbarc.fasta -m TEST -B 1000 -alrt 1000 -T AUTO
-```
+*10043234.1 is the scaffold with the most NLRs (8) contains only TIR-NLRs, 6 of which are partial (on the + strand), and 2 which are complete NLRs (on the - strand).*
 
 # Conclusion
