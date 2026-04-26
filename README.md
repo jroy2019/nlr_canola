@@ -19,7 +19,7 @@ For this project, we utlised a variety of tools:
 - **R 4.1.2** for data analysis and visualisation
 - **MAFFT v7.490** for multiple sequence alignment of NB-ARC domains
 - **IQ-TREE  v2.0.7** for phylogenetic tree construction
-- ** Python v3.13.9** for data visualisation
+- **Python v3.13.9** for data visualisation
 # The Analysis
 ## 1. Download and unzip *Brassica napus* Whole Genome Sequence (WGS) from European Nucleotide Archive (ENA)
 
@@ -32,7 +32,7 @@ gunzip CCCW01.fasta.gz
 The NLR-Annotator is a tool designed to identify and annotate NLR (Nucleotide-binding Leucine-rich repeat) genes in plant genomes. It uses conserved Nucleotide-Binding ARCs as anchors, then searches flanking regions for other NLR-associated motifs to delineate the boundaries of each NLR gene. The tool outputs the identified NLR genes in various formats, including GFF, BED, and FASTA used for various downstream analyses.
 
 ```bash
-java -Xmx8000M -jar /path/to/NLR-Annotator-v2.1b.jar -i CCCW01.fasta -x /path/to/mot.txt -y /path/to/store.txt -o output.txt -g output.gff -b output.bed -m output.motifs.bed -a output.nbarkMotifAlignment.fasta
+java -Xmx8000M -jar /path/to/NLR-Annotator-v2.1b.jar -i CCCW01.fasta -x /path/to/mot.txt -y /path/to/store.txt -o output.txt -a output.nbarkMotifAlignment.fasta
 
 # add header to the output.txt file
 sed -i '1s/^/scaffold_id\tgene_id\tdomain_class\tstart\tend\tstrand\tmotifs\n/' output.txt
@@ -101,16 +101,12 @@ chisq.test(table(df_nlr$strand, df_nlr$nlr_class)) #test for strand bias across 
 | **-** | 203 | 123 |
 | **+** | 200 | 103 |
 
-| | CNLR | NLR | TNLR |
+| | CC-NLR | Uncharacterised NLR | TIR-NLR |
 |---|---|---|---|
 | **-** | 44 | 69 | 213 |
 | **+** | 41 | 65 | 197 |
 
 *Chi-squared tests indicate no significant strand bias across complete vs partial NLRs (p = 0.996) or across NLR classes (p = 0.372).*
-
-| Cluster size | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
-|---|---|---|---|---|---|---|---|---|
-| Scaffolds | 365 | 63 | 25 | 5 | 7 | 0 | 0 | 1 |
 
 ## 4. Allign NB-ARC domain sequences using MAFFT 
 MAFFT is a widely used tool for multiple sequence alignment. NB-ARC domain protein sequences were used as input, producing an aligned protein sequence output. The --localpair option is used for sequences that are expected to have local similarities, while --maxiterate allows for up to 1000 iterations to refine the alignment, improving accuracy. The --reorder option groups similar sequences together in the output alignment.
@@ -206,11 +202,13 @@ motif_counts_by_class <- df_nlr_long %>%
   summarise(count = n(), .groups = 'drop') 
 ```
 ```python
+# Visualise using pyton
+# Import libraries
 import pandas as pd 
 import matplotlib.pyplot as plt 
 import numpy as np
 
-# Define total counts of cCC and TIR NLRs
+# Define total counts of CC and TIR NLRs
 cc_total = 85
 tir_total = 410
 
@@ -247,3 +245,9 @@ plt.show()
 ![Motif distribution in CC-NLRs vs TIR-NLRs](results/motifs.png)
 
 # Conclusion
+1. **NLR Diversity and Structural Completeness**
+The Brassica napus genome contains 629 NLR genes with distinct structural classes, TIR-NLR (410), CC-NLR (85), uncharacterised NLR (134), further classified as either complete (403) or partial (226). This diversity reflects both functional NLR genes and pseudogenised copies, indicating ongoing evolution of this crucial immune gene family.
+2. **Evolutionary Origins and Phylogenetic Structure**
+Phylogenetic analysis of NB-ARC domains reveals two well-supported clades (bootstrap >90%), consistent with *B. napus* being an allotetraploid derived from two ancestral species (*B. rapa* and *B. oleracea*). Extensive sub-clade branching within each major clade indicates rapid NLR diversification, suggesting an ongoing pathogen-driven arms race that has generated functional diversity within each parental lineage.
+3. **Class-Specific Motif Conservation and Genomic Clustering**
+CC-NLRs and TIR-NLRs exhibit distinct motif signatures, suggesting functional divergence and class-specific selective pressures. NLR clustering on individual scaffolds (up to 8 tandem genes on one scaffold) indicates local gene duplication and pseudogenisation events, driving NLR family expansion and generating structural diversity across the genome.
