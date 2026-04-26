@@ -90,9 +90,9 @@ chisq.test(table(df_nlr$strand, df_nlr$nlr_class)) #test for strand bias across 
 
 | Class | Complete | Partial |
 |---|---|---|
-| CNLR | 76 | 9 |
+| CC-NLR | 76 | 9 |
 | NLR | 95 | 39 |
-| TNLR | 232 | 178 |
+| TIR-NLR | 232 | 178 |
 
 ![Distribution of NLR Gene Lengths](results/nlr_length_distribution.png)
 
