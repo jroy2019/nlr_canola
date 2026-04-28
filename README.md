@@ -169,6 +169,7 @@ df_nlr[df_nlr$scaffold_id == "ENA|CCCW010043234|CCCW010043234.1",
 | Cluster size | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
 |---|---|---|---|---|---|---|---|---|
 | Scaffolds | 365 | 63 | 25 | 5 | 7 | 0 | 0 | 1 |
+
 *Total number of unique scaffolds with NLRs: 466 and most NLRs are by themselves*
 
 | scaffold_id | domain_class | start | end | strand | nlr_class | gene_type |
@@ -218,31 +219,36 @@ df_pivot = df_plot.pivot_table(index='motifs', columns='nlr_class', values='coun
 # Calculate percentages
 df_pivot['CC-NLR%'] = df_pivot['CNLR'] / cc_total * 100
 df_pivot['TIR-NLR%'] = df_pivot['TNLR'] / tir_total * 100
+df_pivot['difference'] = abs(df_pivot['CC-NLR%'] - df_pivot['TIR-NLR%'])
 
 # Sort by motif number
 df_pivot['motif_num'] = df_pivot.index.str.extract(r'motif_(\d+)', expand=False).astype(int)
 df_pivot = df_pivot.sort_values('motif_num')
 
-# Plot barchart
-fig, ax = plt.subplots(figsize=(10, 6))
-x = np.arange(len(df_pivot))
+#Plot bargraphs by difference in motif percentage between CC-NLRs and TIR-NLRs
+less_10 = df_pivot[df_pivot['difference'] < 10]
+bet_10_50 = df_pivot[(df_pivot['difference'] >= 10) & (df_pivot['difference'] < 50)]
+over_50 = df_pivot[df_pivot['difference'] >= 50]
+
+fig, axes = plt.subplots(1, 3, figsize=(20, 6))
 width = 0.35
 
-ax.bar(x - width/2, df_pivot['CC-NLR%'], width, label='CC-NLR', color='#0072B2', alpha=0.8)
-ax.bar(x + width/2, df_pivot['TIR-NLR%'], width, label='TIR-NLR', color='#E69F00', alpha=0.8)
+#side-by-side bars for CC and TIR
+x = np.arange(len(less_10))
+axes[0].bar(x - width/2, less_10['CC-NLR%'], width, label='CC-NLR%', alpha=0.8, color='#E69F00')
+axes[0].bar(x + width/2, less_10['TIR-NLR%'], width, label='TIR-NLR%', alpha=0.8, color='#0072B2')
 
-ax.set_xlabel('Motif', fontsize=12)
-ax.set_ylabel('Percentage (%)', fontsize=12)
-ax.set_xticks(x)
-ax.set_xticklabels(df_pivot.index, rotation=45, ha='right')  
-ax.legend()
-ax.grid(False)  
+x = np.arange(len(bet_10_50))
+axes[1].bar(x - width/2, bet_10_50['CC-NLR%'], width, label='CC-NLR%', alpha=0.8, color='#E69F00')
+axes[1].bar(x + width/2, bet_10_50['TIR-NLR%'], width, label='TIR-NLR%', alpha=0.8, color='#0072B2')
 
-plt.tight_layout()
-plt.show()
+x = np.arange(len(over_50))
+axes[2].bar(x - width/2, over_50['CC-NLR%'], width, label='CC-NLR%', alpha=0.8, color='#E69F00')
+axes[2].bar(x + width/2, over_50['TIR-NLR%'], width, label='TIR-NLR%', alpha=0.8, color='#0072B2')
 ```
 ## Results
 ![Motif distribution in CC-NLRs vs TIR-NLRs](results/motifs.png)
+*Motifs were grouped by the absolute difference between CC-NLR% and TIR-NLR% prevalence: <10% (similar), 10–50% (moderate), and ≥50% (divergent).*
 
 # Conclusion
 1. **NLR Diversity and Structural Completeness**
